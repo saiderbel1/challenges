@@ -11,8 +11,8 @@ def render(app: ProcurementApp):
     # Initialize session state for this page
     if "extracted_data" not in st.session_state:
         st.session_state.extracted_data = None
-    if "pdf_text" not in st.session_state:
-        st.session_state.pdf_text = None
+    if "pdf_bytes" not in st.session_state:
+        st.session_state.pdf_bytes = None
     if "edited_order_lines" not in st.session_state:
         st.session_state.edited_order_lines = None
     if "file_uploader_key" not in st.session_state:
@@ -31,25 +31,19 @@ def render(app: ProcurementApp):
         if st.session_state.get("uploaded_file_name") != uploaded_file.name:
             st.session_state.uploaded_file_name = uploaded_file.name
             st.session_state.extracted_data = None
-            st.session_state.pdf_text = None
+            st.session_state.pdf_bytes = None
             st.session_state.edited_order_lines = None
 
-        # Extract text from PDF
-        if st.session_state.pdf_text is None:
-            with st.spinner("Extracting text from PDF..."):
-                try:
-                    pdf_bytes = uploaded_file.read()
-                    st.session_state.pdf_text = app.extract_text_from_pdf_bytes(pdf_bytes)
-                except Exception as e:
-                    st.error(f"Error extracting PDF text: {e}")
-                    return
+        # Store PDF bytes
+        if st.session_state.pdf_bytes is None:
+            st.session_state.pdf_bytes = uploaded_file.read()
 
-        # Auto-extract data with AI
+        # Auto-extract data with AI (includes validation and OCR fallback)
         if st.session_state.extracted_data is None:
-            with st.spinner("Analyzing document with AI..."):
+            with st.spinner("Analyzing document with AI (will use OCR if needed)..."):
                 try:
-                    st.session_state.extracted_data = app.extract_procurement_data(
-                        st.session_state.pdf_text
+                    st.session_state.extracted_data = app.extract_from_pdf_bytes(
+                        st.session_state.pdf_bytes
                     )
                     # Initialize editable order lines from extracted data
                     st.session_state.edited_order_lines = [
@@ -201,7 +195,7 @@ def render(app: ProcurementApp):
 
                         # Clear session state for this page
                         st.session_state.extracted_data = None
-                        st.session_state.pdf_text = None
+                        st.session_state.pdf_bytes = None
                         st.session_state.uploaded_file_name = None
                         st.session_state.edited_order_lines = None
                         st.session_state.file_uploader_key += 1
@@ -212,7 +206,7 @@ def render(app: ProcurementApp):
         with col2:
             if st.button("Start Over", use_container_width=True):
                 st.session_state.extracted_data = None
-                st.session_state.pdf_text = None
+                st.session_state.pdf_bytes = None
                 st.session_state.uploaded_file_name = None
                 st.session_state.edited_order_lines = None
                 st.session_state.file_uploader_key += 1

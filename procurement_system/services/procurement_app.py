@@ -1,9 +1,13 @@
 import os
 
-import fitz  # PyMuPDF
-
 from data import DatabaseManager, RequestRepository
-from intake_management import ExtractedProcurementData, IntakeManager, OCRAgent, ProcurementRequest, RequestStatus
+from intake_management import (
+    COMMODITY_GROUPS,
+    ExtractedProcurementData,
+    IntakeManager,
+    ProcurementRequest,
+    RequestStatus,
+)
 
 
 class ProcurementApp:
@@ -14,48 +18,16 @@ class ProcurementApp:
         self.db_manager.initialize_schema()
         self.repository = RequestRepository(self.db_manager)
         self.intake_manager = IntakeManager()
-        self.ocr_agent = OCRAgent()
 
-    def extract_text_from_pdf(self, pdf_path: str) -> str:
-        """Extract text from a PDF file."""
+    def extract_from_pdf_path(self, pdf_path: str) -> ExtractedProcurementData:
+        """Extract procurement data from PDF path (with validation and OCR fallback)."""
         if not os.path.exists(pdf_path):
             raise FileNotFoundError(f"PDF file not found: {pdf_path}")
+        return self.intake_manager.extract_from_pdf_path(pdf_path)
 
-        doc = fitz.open(pdf_path)
-        text_parts = []
-
-        for page_num in range(len(doc)):
-            page = doc[page_num]
-            text_parts.append(f"--- Page {page_num + 1} ---")
-            text_parts.append(page.get_text())
-
-        doc.close()
-        return "\n".join(text_parts)
-
-    def extract_text_from_pdf_bytes(self, pdf_bytes: bytes) -> str:
-        """Extract text from PDF bytes (for file uploads)."""
-        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-        text_parts = []
-
-        for page_num in range(len(doc)):
-            page = doc[page_num]
-            text_parts.append(f"--- Page {page_num + 1} ---")
-            text_parts.append(page.get_text())
-
-        doc.close()
-        return "\n".join(text_parts)
-
-    def extract_procurement_data(self, pdf_text: str) -> ExtractedProcurementData:
-        """Extract structured procurement data from PDF text using LLM."""
-        return self.intake_manager.extract_procurement_data(pdf_text)
-
-    def extract_procurement_data_ocr(self, pdf_path: str) -> ExtractedProcurementData:
-        """Extract structured procurement data from PDF using OCR (Vision)."""
-        return self.ocr_agent.extract_from_pdf_path(pdf_path)
-
-    def extract_procurement_data_ocr_bytes(self, pdf_bytes: bytes) -> ExtractedProcurementData:
-        """Extract structured procurement data from PDF bytes using OCR (Vision)."""
-        return self.ocr_agent.extract_from_pdf_bytes(pdf_bytes)
+    def extract_from_pdf_bytes(self, pdf_bytes: bytes) -> ExtractedProcurementData:
+        """Extract procurement data from PDF bytes (with validation and OCR fallback)."""
+        return self.intake_manager.extract_from_pdf_bytes(pdf_bytes)
 
     def create_request(
         self,
@@ -84,8 +56,6 @@ class ProcurementApp:
 
     def get_commodity_groups(self) -> list[tuple[int, str]]:
         """Get all commodity groups as list of (id, name) tuples."""
-        from intake_management.intake_manager import COMMODITY_GROUPS
-
         groups = []
         for category in COMMODITY_GROUPS["categories"]:
             for group in category["commodityGroups"]:

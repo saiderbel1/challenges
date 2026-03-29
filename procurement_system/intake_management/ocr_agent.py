@@ -7,7 +7,7 @@ import pypdfium2 as pdfium
 from PIL import Image
 
 from .types import ExtractedProcurementData
-from .intake_manager import COMMODITY_GROUPS
+from .parser_agent import COMMODITY_GROUPS
 
 
 class OCRAgent:
