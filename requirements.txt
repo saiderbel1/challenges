@@ -3,3 +3,4 @@ langchain
 langchain-openai
 streamlit
 streamlit-option-menu
+pypdfium2

@@ -136,6 +136,65 @@ def enter_new_request(repository: RequestRepository, intake_manager: IntakeManag
     display_request(request, intake_manager, request_id)
 
 
+def enter_new_request_ocr(repository: RequestRepository, intake_manager: IntakeManager) -> None:
+    """Handle entering a new procurement request using OCR (Vision)."""
+    from intake_management import OCRAgent
+
+    # Check for API key
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        print("Error: OPENAI_API_KEY environment variable is not set.")
+        print("Please set it with: export OPENAI_API_KEY='your-api-key'")
+        return
+
+    # Get user input
+    requestor_name = input("Enter your name: ").strip()
+    if not requestor_name:
+        print("Error: Name cannot be empty.")
+        return
+
+    department_name = input("Enter your department name: ").strip()
+    if not department_name:
+        print("Error: Department name cannot be empty.")
+        return
+
+    pdf_path = input("Enter the path to the PDF file: ").strip()
+    if not pdf_path:
+        print("Error: PDF path cannot be empty.")
+        return
+
+    if not os.path.exists(pdf_path):
+        print(f"Error: PDF file not found: {pdf_path}")
+        return
+
+    # Extract procurement data using OCR (Vision)
+    print("\nConverting PDF to images and analyzing with Vision AI...")
+    try:
+        ocr_agent = OCRAgent()
+        extracted_data = ocr_agent.extract_from_pdf_path(pdf_path)
+    except Exception as e:
+        print(f"Error during OCR analysis: {e}")
+        return
+
+    # Combine extracted data with user input
+    request = ProcurementRequest.from_extracted_data(
+        extracted=extracted_data,
+        requestor_name=requestor_name,
+        requestor_department=department_name,
+    )
+
+    # Save the request
+    try:
+        request_id = repository.save_request(request)
+        print(f"\nRequest saved successfully with ID: {request_id}")
+    except Exception as e:
+        print(f"Error saving request: {e}")
+        return
+
+    # Display the result
+    display_request(request, intake_manager, request_id)
+
+
 def main():
     print("=" * 60)
     print("PROCUREMENT REQUEST SYSTEM")
@@ -151,20 +210,23 @@ def main():
         while True:
             print("\nWhat would you like to do?")
             print("1. Display saved requests")
-            print("2. Enter a new request")
-            print("3. Exit")
+            print("2. Enter a new request (text extraction)")
+            print("3. Enter a new request (OCR mode)")
+            print("4. Exit")
 
-            choice = input("\nEnter your choice (1-3): ").strip()
+            choice = input("\nEnter your choice (1-4): ").strip()
 
             if choice == "1":
                 display_saved_requests(repository, intake_manager)
             elif choice == "2":
                 enter_new_request(repository, intake_manager)
             elif choice == "3":
+                enter_new_request_ocr(repository, intake_manager)
+            elif choice == "4":
                 print("Goodbye!")
                 break
             else:
-                print("Invalid choice. Please enter 1, 2, or 3.")
+                print("Invalid choice. Please enter 1, 2, 3, or 4.")
     finally:
         db_manager.close()
 
