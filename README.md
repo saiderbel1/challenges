@@ -1,24 +1,27 @@
-# Procurement System
+# Challenges
+
+## Procurement System
 
 A Python application for parsing procurement request PDFs using PyMuPDF and LangChain with OpenAI.
 
-## Features
+### Features
 
 - Extract text from PDF files containing procurement requests
 - Use AI to parse tabular data and extract structured information
+- Auto-classify items into commodity groups (50 categories)
 - Output includes: requestor details, vendor info, VAT ID, order lines, and total cost
 
-## Requirements
+### Requirements
 
 - Python 3.10+
 - OpenAI API key
 
-## Installation
+### Installation
 
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd procurement_system
+cd challenges
 ```
 
 2. Create a virtual environment:
@@ -37,10 +40,10 @@ pip install -r requirements.txt
 export OPENAI_API_KEY='your-api-key'
 ```
 
-## Running
+### Running
 
 ```bash
-python main.py
+python procurement_system/main.py
 ```
 
 The program will prompt you for:
@@ -48,7 +51,7 @@ The program will prompt you for:
 - Your department name
 - Path to a PDF file containing a procurement request
 
-## Output Structure
+### Output Structure
 
 The extracted data includes:
 - **Requestor Name**: Full name of the person submitting the request
@@ -65,3 +68,14 @@ The extracted data includes:
   - Total Price
 - **Total Cost**: Estimated total cost of the request
 - **Department**: Department mentioned in the document (if any)
+
+### Project Structure
+
+```
+challenges/
+├── .gitignore
+├── README.md
+├── requirements.txt
+└── procurement_system/
+    └── main.py
+```
