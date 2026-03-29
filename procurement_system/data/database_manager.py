@@ -70,6 +70,7 @@ class DatabaseManager:
                 requestor_department TEXT NOT NULL,
                 commodity_group INTEGER NOT NULL,
                 total_cost REAL NOT NULL,
+                status TEXT NOT NULL DEFAULT 'Open',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
@@ -86,5 +87,11 @@ class DatabaseManager:
                 FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE
             )
         """)
+
+        # Migration: Add status column if it doesn't exist (for existing databases)
+        try:
+            self.execute("ALTER TABLE requests ADD COLUMN status TEXT NOT NULL DEFAULT 'Open'")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
 
         self.commit()

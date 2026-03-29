@@ -1,6 +1,17 @@
 import streamlit as st
 
 from services import ProcurementApp
+from intake_management import RequestStatus
+
+
+def _get_status_color(status: RequestStatus) -> str:
+    """Get color for status badge."""
+    colors = {
+        RequestStatus.OPEN: "🟡",
+        RequestStatus.IN_PROGRESS: "🔵",
+        RequestStatus.CLOSED: "🟢",
+    }
+    return colors.get(status, "⚪")
 
 
 def render(app: ProcurementApp):
@@ -21,12 +32,14 @@ def render(app: ProcurementApp):
     # Display each request
     for request_id, request in requests:
         commodity_name = app.get_commodity_group_name(request.commodity_group)
+        status_icon = _get_status_color(request.status)
 
-        with st.expander(f"Request #{request_id}: {request.title}", expanded=False):
+        with st.expander(f"{status_icon} Request #{request_id}: {request.title} [{request.status.value}]", expanded=False):
             col1, col2 = st.columns(2)
 
             with col1:
                 st.markdown("**Request Details**")
+                st.text(f"Status: {request.status.value}")
                 st.text(f"Requestor: {request.requestor_name}")
                 st.text(f"Department: {request.requestor_department}")
                 st.text(f"Vendor: {request.vendor_name}")

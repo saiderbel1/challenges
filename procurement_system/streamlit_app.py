@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 
 from services import ProcurementApp
-from views import submit_request, my_requests
+from views import submit_request, my_requests, management_dashboard
 
 
 # Page configuration
@@ -19,10 +19,34 @@ def get_app() -> ProcurementApp:
     return ProcurementApp()
 
 
-def render_login():
-    """Render the login gate page."""
+def render_landing():
+    """Render the landing page with user/management options."""
+    st.title("Procurement Request System")
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+
+    with col2:
+        st.subheader("Welcome! Please select your role:")
+
+        if st.button("Continue as User", type="primary", use_container_width=True):
+            st.session_state.login_mode = "user"
+            st.rerun()
+
+        st.write("")
+
+        if st.button("Management", use_container_width=True):
+            st.session_state.login_mode = "management"
+            st.rerun()
+
+
+def render_user_login():
+    """Render the user login page."""
     st.title("Procurement Request System")
     st.subheader("Please enter your information to continue")
+
+    if st.button("← Back"):
+        del st.session_state.login_mode
+        st.rerun()
 
     with st.form("login_form"):
         name = st.text_input("Your Name", placeholder="Enter your full name")
@@ -38,11 +62,35 @@ def render_login():
                 st.session_state.user_name = name.strip()
                 st.session_state.user_department = department.strip()
                 st.session_state.logged_in = True
+                st.session_state.user_type = "user"
                 st.rerun()
 
 
-def render_main_app():
-    """Render the main application with sidebar navigation."""
+def render_management_login():
+    """Render the management login page."""
+    st.title("Management Dashboard")
+    st.subheader("Please enter your name to continue")
+
+    if st.button("← Back"):
+        del st.session_state.login_mode
+        st.rerun()
+
+    with st.form("management_login_form"):
+        name = st.text_input("Your Name", placeholder="Enter your full name")
+        submitted = st.form_submit_button("Continue", type="primary")
+
+        if submitted:
+            if not name.strip():
+                st.error("Please enter your name.")
+            else:
+                st.session_state.manager_name = name.strip()
+                st.session_state.logged_in = True
+                st.session_state.user_type = "manager"
+                st.rerun()
+
+
+def render_user_app():
+    """Render the main user application with sidebar navigation."""
     app = get_app()
 
     # Sidebar
@@ -62,7 +110,6 @@ def render_main_app():
 
     # Handle navigation
     if selected == "Logout":
-        # Clear session state
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
@@ -72,13 +119,47 @@ def render_main_app():
         my_requests.render(app)
 
 
+def render_management_app():
+    """Render the management dashboard with sidebar navigation."""
+    app = get_app()
+
+    # Sidebar
+    with st.sidebar:
+        st.markdown(f"**Manager:** {st.session_state.manager_name}")
+        st.divider()
+
+        # Navigation menu
+        selected = option_menu(
+            menu_title="Management",
+            options=["Request Submissions", "Logout"],
+            icons=["inbox-fill", "box-arrow-right"],
+            menu_icon="gear-fill",
+            default_index=0,
+        )
+
+    # Handle navigation
+    if selected == "Logout":
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.rerun()
+    elif selected == "Request Submissions":
+        management_dashboard.render(app)
+
+
 def main():
     """Main entry point for the Streamlit app."""
-    # Check if user is logged in
-    if not st.session_state.get("logged_in", False):
-        render_login()
+    # Check login state
+    if st.session_state.get("logged_in", False):
+        if st.session_state.get("user_type") == "manager":
+            render_management_app()
+        else:
+            render_user_app()
+    elif st.session_state.get("login_mode") == "user":
+        render_user_login()
+    elif st.session_state.get("login_mode") == "management":
+        render_management_login()
     else:
-        render_main_app()
+        render_landing()
 
 
 if __name__ == "__main__":

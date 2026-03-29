@@ -1,6 +1,6 @@
 import sqlite3
 
-from intake_management import OrderLine, ProcurementRequest
+from intake_management import OrderLine, ProcurementRequest, RequestStatus
 from .database_manager import DatabaseManager
 
 
@@ -16,8 +16,8 @@ class RequestRepository:
             """
             INSERT INTO requests (
                 requestor_name, title, vendor_name, vat_id,
-                requestor_department, commodity_group, total_cost
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                requestor_department, commodity_group, total_cost, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 request.requestor_name,
@@ -27,6 +27,7 @@ class RequestRepository:
                 request.requestor_department,
                 request.commodity_group,
                 request.total_cost,
+                request.status.value,
             ),
         )
         request_id = cursor.lastrowid
@@ -80,16 +81,17 @@ class RequestRepository:
         )
         return [self._map_row_to_order_line(row) for row in rows]
 
-    def load_all_requests(self) -> list[ProcurementRequest]:
-        """Load all procurement requests."""
-        rows = self.db_manager.fetch_all("SELECT * FROM requests")
-        requests = []
+    def load_all_requests(self) -> list[tuple[int, ProcurementRequest]]:
+        """Load all procurement requests. Returns list of (id, request) tuples."""
+        rows = self.db_manager.fetch_all("SELECT * FROM requests ORDER BY created_at DESC")
+        results = []
 
         for row in rows:
             order_lines = self._load_order_lines(row["id"])
-            requests.append(self._map_row_to_request(row, order_lines))
+            request = self._map_row_to_request(row, order_lines)
+            results.append((row["id"], request))
 
-        return requests
+        return results
 
     def load_requests_by_user(self, requestor_name: str) -> list[tuple[int, ProcurementRequest]]:
         """Load all requests for a specific user. Returns list of (id, request) tuples."""
@@ -115,6 +117,15 @@ class RequestRepository:
         self.db_manager.commit()
         return cursor.rowcount > 0
 
+    def update_status(self, request_id: int, status: RequestStatus) -> bool:
+        """Update the status of a request. Returns True if updated."""
+        cursor = self.db_manager.execute(
+            "UPDATE requests SET status = ? WHERE id = ?",
+            (status.value, request_id),
+        )
+        self.db_manager.commit()
+        return cursor.rowcount > 0
+
     def _map_row_to_request(
         self, row: sqlite3.Row, order_lines: list[OrderLine]
     ) -> ProcurementRequest:
@@ -128,6 +139,7 @@ class RequestRepository:
             commodity_group=row["commodity_group"],
             total_cost=row["total_cost"],
             order_lines=order_lines,
+            status=RequestStatus(row["status"]),
         )
 
     def _map_row_to_order_line(self, row: sqlite3.Row) -> OrderLine:

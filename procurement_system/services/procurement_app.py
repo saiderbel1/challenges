@@ -3,7 +3,7 @@ import os
 import fitz  # PyMuPDF
 
 from data import DatabaseManager, RequestRepository
-from intake_management import ExtractedProcurementData, IntakeManager, ProcurementRequest
+from intake_management import ExtractedProcurementData, IntakeManager, ProcurementRequest, RequestStatus
 
 
 class ProcurementApp:
@@ -84,6 +84,14 @@ class ProcurementApp:
                 name = f"{group['name']} ({category['name']})"
                 groups.append((group_id, name))
         return groups
+
+    def get_all_requests(self) -> list[tuple[int, ProcurementRequest]]:
+        """Get all requests (for management). Returns list of (id, request) tuples."""
+        return self.repository.load_all_requests()
+
+    def update_request_status(self, request_id: int, status: RequestStatus) -> bool:
+        """Update the status of a request. Returns True if updated."""
+        return self.repository.update_status(request_id, status)
 
     def close(self) -> None:
         """Close database connection."""

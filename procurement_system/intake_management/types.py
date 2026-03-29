@@ -1,4 +1,14 @@
+from enum import Enum
+
 from pydantic import BaseModel, Field
+
+
+class RequestStatus(str, Enum):
+    """Status of a procurement request."""
+
+    OPEN = "Open"
+    IN_PROGRESS = "In Progress"
+    CLOSED = "Closed"
 
 
 class OrderLine(BaseModel):
@@ -41,6 +51,7 @@ class ProcurementRequest(BaseModel):
     commodity_group: int = Field(description="The commodity group ID (1-50)")
     order_lines: list[OrderLine] = Field(description="List of order line items")
     total_cost: float = Field(description="Estimated total cost of the request")
+    status: RequestStatus = Field(default=RequestStatus.OPEN, description="Current status of the request")
 
     @classmethod
     def from_extracted_data(
@@ -59,4 +70,5 @@ class ProcurementRequest(BaseModel):
             commodity_group=extracted.commodity_group,
             order_lines=extracted.order_lines,
             total_cost=extracted.total_cost,
+            status=RequestStatus.OPEN,
         )
