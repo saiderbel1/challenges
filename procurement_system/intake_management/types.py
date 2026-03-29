@@ -37,6 +37,10 @@ class ExtractedProcurementData(BaseModel):
         description="The commodity group ID (1-50) that best matches the requested items/services"
     )
     order_lines: list[OrderLine] = Field(description="List of order line items")
+    additional_costs: float = Field(
+        default=0.0,
+        description="Sum of additional costs (VAT, taxes, shipping, fees) beyond order line totals"
+    )
     total_cost: float = Field(description="Estimated total cost of the request")
 
 

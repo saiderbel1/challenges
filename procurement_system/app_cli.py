@@ -2,34 +2,7 @@ import os
 
 from intake_management import IntakeManager, ProcurementRequest
 from data import DatabaseManager, RequestRepository
-
-
-def display_request(request: ProcurementRequest, intake_manager: IntakeManager, request_id: int | None = None) -> None:
-    """Display a procurement request."""
-    print("\n" + "=" * 60)
-    if request_id is not None:
-        print(f"PROCUREMENT REQUEST (ID: {request_id})")
-    else:
-        print("EXTRACTED PROCUREMENT REQUEST")
-    print("=" * 60)
-    print(f"Requestor Name: {request.requestor_name}")
-    print(f"Requestor Department: {request.requestor_department}")
-    print(f"Title/Description: {request.title}")
-    print(f"Vendor Name: {request.vendor_name}")
-    print(f"VAT ID: {request.vat_id}")
-    commodity_name = intake_manager.get_commodity_group_name(request.commodity_group)
-    print(f"Commodity Group: {request.commodity_group:03d} - {commodity_name}")
-    print("-" * 60)
-    print("ORDER LINES:")
-    for i, line in enumerate(request.order_lines, 1):
-        print(f"  {i}. {line.position_description}")
-        print(f"     Unit: {line.unit}")
-        print(f"     Unit Price: {line.unit_price:.2f}")
-        print(f"     Amount: {line.amount:.2f}")
-        print(f"     Total: {line.total_price:.2f}")
-    print("-" * 60)
-    print(f"TOTAL COST: {request.total_cost:.2f}")
-    print("=" * 60)
+from utils import display_request
 
 
 def display_saved_requests(repository: RequestRepository, intake_manager: IntakeManager) -> None:
@@ -43,7 +16,7 @@ def display_saved_requests(repository: RequestRepository, intake_manager: Intake
     print(f"\nFound {len(requests)} saved request(s):")
 
     for request_id, request in requests:
-        display_request(request, intake_manager, request_id)
+        display_request(request, request_id)
 
 
 def enter_new_request(repository: RequestRepository, intake_manager: IntakeManager) -> None:
@@ -99,7 +72,7 @@ def enter_new_request(repository: RequestRepository, intake_manager: IntakeManag
         return
 
     # Display the result
-    display_request(request, intake_manager, request_id)
+    display_request(request, request_id)
 
 
 def main():
