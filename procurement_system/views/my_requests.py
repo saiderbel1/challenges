@@ -13,10 +13,7 @@ def render(app: ProcurementApp):
     requests = app.get_user_requests(user_name)
 
     if not requests:
-        st.info("You haven't submitted any requests yet.")
-        if st.button("Submit a New Request"):
-            st.session_state.current_page = "submit_request"
-            st.rerun()
+        st.info("You haven't submitted any requests yet. Use the sidebar menu to submit a new request.")
         return
 
     st.write(f"Found **{len(requests)}** request(s)")

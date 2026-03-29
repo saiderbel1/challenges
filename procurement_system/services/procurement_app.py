@@ -73,6 +73,18 @@ class ProcurementApp:
         """Get the commodity group name by ID."""
         return self.intake_manager.get_commodity_group_name(group_id)
 
+    def get_commodity_groups(self) -> list[tuple[int, str]]:
+        """Get all commodity groups as list of (id, name) tuples."""
+        from intake_management.intake_manager import COMMODITY_GROUPS
+
+        groups = []
+        for category in COMMODITY_GROUPS["categories"]:
+            for group in category["commodityGroups"]:
+                group_id = int(group["id"])
+                name = f"{group['name']} ({category['name']})"
+                groups.append((group_id, name))
+        return groups
+
     def close(self) -> None:
         """Close database connection."""
         self.db_manager.close()

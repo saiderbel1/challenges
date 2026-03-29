@@ -1,7 +1,8 @@
 import streamlit as st
+from streamlit_option_menu import option_menu
 
 from services import ProcurementApp
-from pages import submit_request, my_requests
+from views import submit_request, my_requests
 
 
 # Page configuration
@@ -46,38 +47,28 @@ def render_main_app():
 
     # Sidebar
     with st.sidebar:
-        st.title("Procurement System")
-        st.divider()
-
         st.markdown(f"**User:** {st.session_state.user_name}")
         st.markdown(f"**Department:** {st.session_state.user_department}")
         st.divider()
 
-        # Navigation
-        if st.button("Submit New Request", use_container_width=True):
-            st.session_state.current_page = "submit_request"
-            st.rerun()
+        # Navigation menu
+        selected = option_menu(
+            menu_title="Procurement System",
+            options=["Submit Request", "My Requests", "Logout"],
+            icons=["cloud-upload", "list-task", "box-arrow-right"],
+            menu_icon="clipboard-check",
+            default_index=0,
+        )
 
-        if st.button("My Requests", use_container_width=True):
-            st.session_state.current_page = "my_requests"
-            st.rerun()
-
-        st.divider()
-
-        if st.button("Logout", use_container_width=True):
-            # Clear session state
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.rerun()
-
-    # Initialize current page if not set
-    if "current_page" not in st.session_state:
-        st.session_state.current_page = "submit_request"
-
-    # Render current page
-    if st.session_state.current_page == "submit_request":
+    # Handle navigation
+    if selected == "Logout":
+        # Clear session state
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.rerun()
+    elif selected == "Submit Request":
         submit_request.render(app)
-    elif st.session_state.current_page == "my_requests":
+    elif selected == "My Requests":
         my_requests.render(app)
 
 
