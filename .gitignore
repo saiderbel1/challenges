@@ -38,3 +38,6 @@ Thumbs.db
 
 # Project specific
 *.pdf
+*.db
+*.sqlite
+*.sqlite3
