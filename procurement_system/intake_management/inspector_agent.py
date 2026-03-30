@@ -35,6 +35,8 @@ Your task is to:
 3. If you can confidently fix the errors, provide corrected data
 4. If you are NOT confident about the fix (confidence < 0.7), return the data unchanged
 
+IMPORTANT: NEVER translate any data — all values must remain in the original language of the document.
+
 Common error causes:
 - Incorrect unit_price or amount values
 - Missing or incorrectly calculated order line totals

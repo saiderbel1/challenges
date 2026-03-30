@@ -109,6 +109,8 @@ You have been given two extractions of the same document:
 The parsed data failed validation because certain fields are missing or malformed.
 Your task is to fill in those fields using the OCR data.
 
+IMPORTANT: NEVER translate any data — all values must remain in the original language of the document.
+
 Issues to resolve:
 {errors}
 

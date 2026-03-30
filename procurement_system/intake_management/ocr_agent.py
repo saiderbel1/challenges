@@ -12,6 +12,7 @@ preserving the original layout as closely as possible (columns, indentation,
 spacing, line breaks).
 
 Rules:
+- NEVER translate any text — reproduce everything in the original language of the document
 - Reproduce ALL visible text exactly as printed — do not summarise, reorder, or omit anything
 - Maintain the spatial relationship between columns (use spaces to align them)
 - Keep headers, footers, and page numbers

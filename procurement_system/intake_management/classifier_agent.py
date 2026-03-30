@@ -77,6 +77,8 @@ Your job is to:
 1. determine a brief name or description of the product/service requested.
 2. Classify the procurement into a category, then select the specific commodity group.
 
+IMPORTANT: NEVER translate any data — the title and all values must remain in the original language of the document.
+
 Step-by-step workflow (follow this order):
 1. Use web_search to research the vendor and/or the products/services in the order lines.
 1. Determine procurement purpose

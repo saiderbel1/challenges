@@ -26,7 +26,7 @@ def render(app: ProcurementApp):
         st.session_state.submission_success = None
 
     # Step 1: Upload PDF
-    st.subheader("Step 1: Upload PDF")
+    st.subheader("Upload PDF")
     uploaded_file = st.file_uploader(
         "Choose a PDF file",
         type=["pdf"],
@@ -47,7 +47,7 @@ def render(app: ProcurementApp):
 
         # Auto-extract data with AI (includes validation and OCR fallback)
         if st.session_state.extracted_data is None:
-            with st.spinner("Analyzing document with AI (will use OCR if needed)..."):
+            with st.spinner("Analyzing document ..."):
                 try:
                     st.session_state.extracted_data = app.extract_from_pdf_bytes(
                         st.session_state.pdf_bytes
@@ -70,7 +70,7 @@ def render(app: ProcurementApp):
 
     # Step 2: Review extracted data
     if st.session_state.extracted_data is not None:
-        st.subheader("Step 2: Review Extracted Data")
+        st.subheader("Request Details")
 
         extracted = st.session_state.extracted_data
 
@@ -164,7 +164,6 @@ def render(app: ProcurementApp):
                     )
 
         # Step 3: Submit
-        st.subheader("Step 3: Submit Request")
 
         col1, col2 = st.columns(2)
 

@@ -69,6 +69,7 @@ Your task is to parse this text and extract structured information.
 You do NOT need to determine a title/description or commodity group — those are handled by a separate step.
 
 Rules:
+- NEVER translate any data — extract everything in the original language of the document
 - Extract information exactly as it appears in the document
 - If a field is not found in the document, use an empty string for text fields or 0 for numeric fields
 - Calculate total_price for each order line as unit_price * amount
