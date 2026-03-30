@@ -113,24 +113,26 @@ Issues to resolve:
 {errors}
 
 Workflow:
-1. FIRST call the compare_text_fields tool to measure how much the Vendor Name and VAT ID differ between parsed and OCR data
-2. If a vendor name or VAT ID is ambiguous, or the two sources disagree significantly (< 80% similarity), use the web_search tool to verify — e.g. search for the vendor name to confirm their real VAT ID or official company name
-3. For EACH of the two text fields (vendor_name, vat_id), reason step-by-step:
-   a. Is the parsed value empty or flagged in the issues?
-   b. What is the similarity score between parsed and OCR?
-   c. If both are non-empty, which looks more plausible given the rest of the document?
-      - Does one contain obvious OCR artefacts (misread characters, broken words)?
-      - Does the VAT ID match the expected DE+9-digit format in one source but not the other?
-      - Does the vendor name appear elsewhere in the data (e.g. in order line descriptions) that can confirm one version?
-   d. State your final choice and why
-4. Produce the merged output with a field_decisions entry for each field
+First, call compare_text_fields for:
+- vendor_name
+- vat_id
 
-Decision guidelines:
-- If the parsed value is empty / missing → take the OCR value
-- If both values are non-empty and highly similar (>= 80%) → prefer the parsed value unless it is flagged in the issues
-- If both values are non-empty and significantly different (< 80%) → carefully reason which is more accurate using the context clues above
-- For numeric values (prices, amounts, totals, additional costs): keep the parsed data values as-is. Only use OCR values if the parsed value is missing
-- Do NOT recalculate or adjust any sums — that is handled separately
+For each field:
+1. If parsed is missing or flagged in issues, use OCR.
+2. If both values exist:
+   - similarity >= 80%: use parsed, unless parsed is flagged
+   - similarity < 80%: choose the more plausible value
+3. To judge plausibility, check:
+   - OCR artefacts or broken text
+   - VAT ID format: DE + 9 digits
+   - For vendor name, verify on the web which company matches the products/services
+   - A name appearing in order lines alone is not enough proof
+4. Record the chosen value and a short reason in field_decisions.
+
+For numeric fields:
+- keep parsed values
+- use OCR only if parsed is missing
+- do not recalculate sums
 """,
         ),
         (

@@ -55,7 +55,6 @@ def sum_additional_costs(costs: list[float]) -> float:
         The sum of all additional costs
     """
     total = sum(costs)
-    print(f"additional costs: {total}")
     return total
 
 
