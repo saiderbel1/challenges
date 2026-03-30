@@ -12,6 +12,30 @@ st.set_page_config(
     layout="wide",
 )
 
+st.markdown(
+    """<style>
+    .block-container { padding-top: 2rem; }
+
+    /* Request cards */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: rgba(128, 128, 128, 0.06) !important;
+        border-radius: 8px !important;
+    }
+
+    /* Order line cards inside expanders */
+    div[data-testid="stExpander"] div[data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: rgba(128, 128, 128, 0.12) !important;
+    }
+
+    /* st.code() block containers */
+    div[data-testid="stCode"] pre {
+        background-color: rgba(128, 128, 128, 0.10) !important;
+        border-radius: 6px !important;
+    }
+    </style>""",
+    unsafe_allow_html=True,
+)
+
 
 @st.cache_resource
 def get_app() -> ProcurementApp:
@@ -23,17 +47,16 @@ def render_landing():
     """Render the landing page with user/management options."""
     st.title("Procurement Request System")
 
-    col1, col2, col3 = st.columns([1, 2, 1])
+    st.subheader("Select your role:")
 
-    with col2:
-        st.subheader("Welcome! Please select your role:")
+    col1, col2, _ = st.columns([1, 1, 2])
 
-        if st.button("Continue as User", type="primary", use_container_width=True):
+    with col1:
+        if st.button("User", type="primary", use_container_width=True):
             st.session_state.login_mode = "user"
             st.rerun()
 
-        st.write("")
-
+    with col2:
         if st.button("Management", use_container_width=True):
             st.session_state.login_mode = "management"
             st.rerun()

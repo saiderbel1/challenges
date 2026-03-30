@@ -1,5 +1,5 @@
 from intake_management.types import ExtractedProcurementData, ProcurementRequest
-from intake_management.parser_agent import get_commodity_group_name
+from intake_management.types import get_commodity_group_name
 
 
 def display_extracted_data(data: ExtractedProcurementData) -> None:

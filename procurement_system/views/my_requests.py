@@ -1,17 +1,7 @@
 import streamlit as st
 
 from services import ProcurementApp
-from intake_management import RequestStatus
-
-
-def _get_status_color(status: RequestStatus) -> str:
-    """Get color for status badge."""
-    colors = {
-        RequestStatus.OPEN: "🟡",
-        RequestStatus.IN_PROGRESS: "🔵",
-        RequestStatus.CLOSED: "🟢",
-    }
-    return colors.get(status, "⚪")
+from views.ui_helpers import status_badge
 
 
 def render(app: ProcurementApp):
@@ -20,7 +10,6 @@ def render(app: ProcurementApp):
 
     user_name = st.session_state.user_name
 
-    # Load user's requests
     requests = app.get_user_requests(user_name)
 
     if not requests:
@@ -29,33 +18,60 @@ def render(app: ProcurementApp):
 
     st.write(f"Found **{len(requests)}** request(s)")
 
-    # Display each request
     for request_id, request in requests:
         commodity_name = app.get_commodity_group_name(request.commodity_group)
-        status_icon = _get_status_color(request.status)
+        with st.container(border=True):
+            header_col, badge_col = st.columns([4, 1])
+            with header_col:
+                st.markdown(
+                    f"<span style='font-size:1.1rem;font-weight:700;'>"
+                    f"{request_id}</span>"
+                    f"<span style='color:#888;margin-left:8px;font-size:0.95rem;'>"
+                    f"{request.title}</span>",
+                    unsafe_allow_html=True,
+                )
+            with badge_col:
+                st.markdown(
+                    f"<div style='text-align:right;'>{status_badge(request.status)}</div>",
+                    unsafe_allow_html=True,
+                )
 
-        with st.expander(f"{status_icon} Request #{request_id}: {request.title} [{request.status.value}]", expanded=False):
-            col1, col2 = st.columns(2)
+            with st.expander("View details", expanded=False):
+                col1, col2, col3 = st.columns(3)
 
-            with col1:
-                st.markdown("**Request Details**")
-                st.text(f"Status: {request.status.value}")
-                st.text(f"Requestor: {request.requestor_name}")
-                st.text(f"Department: {request.requestor_department}")
-                st.text(f"Vendor: {request.vendor_name}")
-                st.text(f"VAT ID: {request.vat_id}")
+                with col1:
+                    st.markdown("**Requestor**")
+                    st.code(request.requestor_name, language=None)
+                    st.markdown("**Department**")
+                    st.code(request.requestor_department, language=None)
 
-            with col2:
-                st.markdown("**Classification**")
-                st.text(f"Commodity Group: {request.commodity_group:03d}")
-                st.text(f"Group Name: {commodity_name}")
-                st.text(f"Total Cost: {request.total_cost:.2f}")
+                with col2:
+                    st.markdown("**Vendor**")
+                    st.code(request.vendor_name, language=None)
+                    st.markdown("**VAT ID**")
+                    st.code(request.vat_id, language=None)
 
-            st.markdown("**Order Lines**")
-            for i, line in enumerate(request.order_lines, 1):
-                st.markdown(f"**{i}. {line.position_description}**")
-                cols = st.columns(4)
-                cols[0].text(f"Unit: {line.unit}")
-                cols[1].text(f"Price: {line.unit_price:.2f}")
-                cols[2].text(f"Amount: {line.amount:.2f}")
-                cols[3].text(f"Total: {line.total_price:.2f}")
+                with col3:
+                    st.markdown("**Commodity Group**")
+                    st.code(f"{request.commodity_group:03d} - {commodity_name}", language=None)
+                    st.markdown("**Total Cost**")
+                    st.code(f"{request.total_cost:.2f}", language=None)
+
+                st.markdown("**Order Lines**")
+
+                for i, line in enumerate(request.order_lines, 1):
+                    with st.container(border=True):
+                        st.markdown(f"**{i}. {line.position_description}**")
+                        cols = st.columns(4)
+                        with cols[0]:
+                            st.caption("Unit")
+                            st.code(line.unit, language=None)
+                        with cols[1]:
+                            st.caption("Unit Price")
+                            st.code(f"{line.unit_price:.2f}", language=None)
+                        with cols[2]:
+                            st.caption("Amount")
+                            st.code(f"{line.amount:.2f}", language=None)
+                        with cols[3]:
+                            st.caption("Total")
+                            st.code(f"{line.total_price:.2f}", language=None)

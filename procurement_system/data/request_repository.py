@@ -83,7 +83,7 @@ class RequestRepository:
 
     def load_all_requests(self) -> list[tuple[int, ProcurementRequest]]:
         """Load all procurement requests. Returns list of (id, request) tuples."""
-        rows = self.db_manager.fetch_all("SELECT * FROM requests ORDER BY created_at DESC")
+        rows = self.db_manager.fetch_all("SELECT * FROM requests ORDER BY created_at ASC")
         results = []
 
         for row in rows:
@@ -96,7 +96,7 @@ class RequestRepository:
     def load_requests_by_user(self, requestor_name: str) -> list[tuple[int, ProcurementRequest]]:
         """Load all requests for a specific user. Returns list of (id, request) tuples."""
         rows = self.db_manager.fetch_all(
-            "SELECT * FROM requests WHERE requestor_name = ? ORDER BY created_at DESC",
+            "SELECT * FROM requests WHERE requestor_name = ? ORDER BY created_at ASC",
             (requestor_name,),
         )
         results = []

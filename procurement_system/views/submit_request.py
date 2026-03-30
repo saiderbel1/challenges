@@ -17,6 +17,13 @@ def render(app: ProcurementApp):
         st.session_state.edited_order_lines = None
     if "file_uploader_key" not in st.session_state:
         st.session_state.file_uploader_key = 0
+    if "submission_success" not in st.session_state:
+        st.session_state.submission_success = None
+
+    # Show success message from previous submission
+    if st.session_state.submission_success:
+        st.success(st.session_state.submission_success)
+        st.session_state.submission_success = None
 
     # Step 1: Upload PDF
     st.subheader("Step 1: Upload PDF")
@@ -191,14 +198,14 @@ def render(app: ProcurementApp):
 
                         request_id = app.save_request(request)
 
-                        st.success(f"Request submitted successfully! (ID: {request_id})")
-
-                        # Clear session state for this page
+                        # Store success message and reset page
+                        st.session_state.submission_success = f"Request submitted successfully! (ID: {request_id})"
                         st.session_state.extracted_data = None
                         st.session_state.pdf_bytes = None
                         st.session_state.uploaded_file_name = None
                         st.session_state.edited_order_lines = None
                         st.session_state.file_uploader_key += 1
+                        st.rerun()
 
                     except Exception as e:
                         st.error(f"Error saving request: {e}")

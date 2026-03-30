@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -9,6 +10,35 @@ class RequestStatus(str, Enum):
     OPEN = "Open"
     IN_PROGRESS = "In Progress"
     CLOSED = "Closed"
+
+
+class ValidationIssueType(str, Enum):
+    """Types of validation issues that can occur during data extraction."""
+
+    EMPTINESS = "emptiness"
+    INVALID_VAT_ID = "invalid_vat_id"
+    ORDER_LINE_SUM_INVALID = "order_line_sum_invalid"
+    TOTAL_SUM_INVALID = "total_sum_invalid"
+
+
+OCR_RECOVERABLE_ISSUES = {
+    ValidationIssueType.EMPTINESS,
+    ValidationIssueType.INVALID_VAT_ID,
+}
+
+INSPECTOR_RECOVERABLE_ISSUES = {
+    ValidationIssueType.ORDER_LINE_SUM_INVALID,
+    ValidationIssueType.TOTAL_SUM_INVALID,
+}
+
+
+class ValidationIssue(BaseModel):
+    """A single typed validation issue."""
+
+    issue_type: ValidationIssueType
+    message: str
+    field: Optional[str] = None
+    line_index: Optional[int] = None
 
 
 class OrderLine(BaseModel):
@@ -76,3 +106,103 @@ class ProcurementRequest(BaseModel):
             total_cost=extracted.total_cost,
             status=RequestStatus.OPEN,
         )
+
+COMMODITY_GROUPS = {
+    "categories": [
+        {
+            "name": "General Services",
+            "commodityGroups": [
+                {"id": "001", "name": "Accommodation Rentals"},
+                {"id": "002", "name": "Membership Fees"},
+                {"id": "003", "name": "Workplace Safety"},
+                {"id": "004", "name": "Consulting"},
+                {"id": "005", "name": "Financial Services"},
+                {"id": "006", "name": "Fleet Management"},
+                {"id": "007", "name": "Recruitment Services"},
+                {"id": "008", "name": "Professional Development"},
+                {"id": "009", "name": "Miscellaneous Services"},
+                {"id": "010", "name": "Insurance"},
+            ],
+        },
+        {
+            "name": "Facility Management",
+            "commodityGroups": [
+                {"id": "011", "name": "Electrical Engineering"},
+                {"id": "012", "name": "Facility Management Services"},
+                {"id": "013", "name": "Security"},
+                {"id": "014", "name": "Renovations"},
+                {"id": "015", "name": "Office Equipment"},
+                {"id": "016", "name": "Energy Management"},
+                {"id": "017", "name": "Maintenance"},
+                {"id": "018", "name": "Cafeteria and Kitchenettes"},
+                {"id": "019", "name": "Cleaning"},
+            ],
+        },
+        {
+            "name": "Publishing Production",
+            "commodityGroups": [
+                {"id": "020", "name": "Audio and Visual Production"},
+                {"id": "021", "name": "Books/Videos/CDs"},
+                {"id": "022", "name": "Printing Costs"},
+                {"id": "023", "name": "Software Development for Publishing"},
+                {"id": "024", "name": "Material Costs"},
+                {"id": "025", "name": "Shipping for Production"},
+                {"id": "026", "name": "Digital Product Development"},
+                {"id": "027", "name": "Pre-production"},
+                {"id": "028", "name": "Post-production Costs"},
+            ],
+        },
+        {
+            "name": "Information Technology",
+            "commodityGroups": [
+                {"id": "029", "name": "Hardware"},
+                {"id": "030", "name": "IT Services"},
+                {"id": "031", "name": "Software"},
+            ],
+        },
+        {
+            "name": "Logistics",
+            "commodityGroups": [
+                {"id": "032", "name": "Courier, Express, and Postal Services"},
+                {"id": "033", "name": "Warehousing and Material Handling"},
+                {"id": "034", "name": "Transportation Logistics"},
+                {"id": "035", "name": "Delivery Services"},
+            ],
+        },
+        {
+            "name": "Marketing & Advertising",
+            "commodityGroups": [
+                {"id": "036", "name": "Advertising"},
+                {"id": "037", "name": "Outdoor Advertising"},
+                {"id": "038", "name": "Marketing Agencies"},
+                {"id": "039", "name": "Direct Mail"},
+                {"id": "040", "name": "Customer Communication"},
+                {"id": "041", "name": "Online Marketing"},
+                {"id": "042", "name": "Events"},
+                {"id": "043", "name": "Promotional Materials"},
+            ],
+        },
+        {
+            "name": "Production",
+            "commodityGroups": [
+                {"id": "044", "name": "Warehouse and Operational Equipment"},
+                {"id": "045", "name": "Production Machinery"},
+                {"id": "046", "name": "Spare Parts"},
+                {"id": "047", "name": "Internal Transportation"},
+                {"id": "048", "name": "Production Materials"},
+                {"id": "049", "name": "Consumables"},
+                {"id": "050", "name": "Maintenance and Repairs"},
+            ],
+        },
+    ]
+}
+
+
+def get_commodity_group_name(group_id: int) -> str:
+    """Get the commodity group name by ID."""
+    id_str = f"{group_id:03d}"
+    for category in COMMODITY_GROUPS["categories"]:
+        for group in category["commodityGroups"]:
+            if group["id"] == id_str:
+                return f"{group['name']} ({category['name']})"
+    return "Unknown"

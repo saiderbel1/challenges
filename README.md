@@ -69,6 +69,57 @@ The extracted data includes:
 - **Total Cost**: Estimated total cost of the request
 - **Department**: Department mentioned in the document (if any)
 
+---
+
+## Header–Lines Matching
+
+A solver that matches order headers to order lines. Each header specifies a `total_price` and a `total_lines` count; the solver finds a subset of exactly `total_lines` order lines whose prices sum to `total_price` using memoized DFS with pruning.
+
+### Usage
+
+The script requires `--mode` (`read` or `generate`).
+
+**Read existing CSVs and solve:**
+
+```bash
+python header_lines_matching/run.py --mode read
+```
+
+**Generate stress-test data and solve:**
+
+```bash
+python header_lines_matching/run.py --mode generate
+```
+
+**Generation parameters (all optional, shown with defaults):**
+
+```bash
+python header_lines_matching/run.py --mode generate \
+  --num-lines 250 \
+  --num-headers 30 \
+  --min-price 5 \
+  --max-price 20 \
+  --min-k 6 \
+  --max-k 10 \
+  --seed 42
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--mode` | *(required)* | `read` to load CSVs, `generate` to create random data |
+| `--headers-path` | `header_lines_matching/order_headers.csv` | Path to headers CSV |
+| `--lines-path` | `header_lines_matching/order_lines.csv` | Path to lines CSV |
+| `--print-head` | `5` | Number of preview rows to print |
+| `--num-lines` | `250` | Number of order lines to generate |
+| `--num-headers` | `30` | Number of order headers to generate |
+| `--min-price` | `5` | Minimum line price (cents) |
+| `--max-price` | `20` | Maximum line price (cents) |
+| `--min-k` | `6` | Minimum lines per header |
+| `--max-k` | `10` | Maximum lines per header |
+| `--seed` | `42` | Random seed for reproducibility |
+
+---
+
 ### Project Structure
 
 ```
@@ -76,6 +127,10 @@ challenges/
 ├── .gitignore
 ├── README.md
 ├── requirements.txt
-└── procurement_system/
-    └── main.py
+├── procurement_system/
+│   └── main.py
+└── header_lines_matching/
+    ├── run.py
+    ├── order_headers.csv
+    └── order_lines.csv
 ```

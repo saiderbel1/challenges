@@ -15,7 +15,7 @@ class DatabaseManager:
     def connect(self) -> sqlite3.Connection:
         """Establish database connection."""
         if self._connection is None:
-            self._connection = sqlite3.connect(self.db_path)
+            self._connection = sqlite3.connect(self.db_path, check_same_thread=False)
             self._connection.row_factory = sqlite3.Row
             self._connection.execute("PRAGMA foreign_keys = ON")
         return self._connection
