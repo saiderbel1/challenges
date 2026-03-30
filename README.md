@@ -2,19 +2,34 @@
 
 ## Procurement System
 
-A Python application for parsing procurement request PDFs using PyMuPDF and LangChain with OpenAI.
-
-### Features
-
-- Extract text from PDF files containing procurement requests
-- Use AI to parse tabular data and extract structured information
-- Auto-classify items into commodity groups (50 categories)
-- Output includes: requestor details, vendor info, VAT ID, order lines, and total cost
+A Python application for fast procurement request submission.
 
 ### Requirements
 
 - Python 3.10+
 - OpenAI API key
+
+### OS Dependencies
+
+These instructions assume you're on a recent OS. Package names may differ for older versions.
+
+#### Debian, Ubuntu, and friends
+
+```bash
+sudo apt install build-essential libpoppler-cpp-dev pkg-config python3-dev
+```
+
+#### Fedora, Red Hat, and friends
+
+```bash
+sudo yum install gcc-c++ pkgconfig poppler-cpp-devel python3-devel
+```
+
+#### macOS
+
+```bash
+brew install pkg-config poppler python
+```
 
 ### Installation
 
@@ -25,20 +40,20 @@ git clone https://github.com/saiderbel1/challenges
 cd challenges
 ```
 
-1. Create a virtual environment:
+2. Create a virtual environment:
 
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-1. Install dependencies:
+3. Install Python dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-1. Set your OpenAI API key:
+4. Set your OpenAI API key:
 
 ```bash
 export OPENAI_API_KEY='your-api-key'
@@ -85,7 +100,6 @@ python header_lines_matching/run.py --mode generate \
   --seed 42
 ```
 
-
 | Flag             | Default                                   | Description                                           |
 | ---------------- | ----------------------------------------- | ----------------------------------------------------- |
 | `--mode`         | *(required)*                              | `read` to load CSVs, `generate` to create random data |
@@ -99,7 +113,6 @@ python header_lines_matching/run.py --mode generate \
 | `--min-k`        | `6`                                       | Minimum lines per header                              |
 | `--max-k`        | `10`                                      | Maximum lines per header                              |
 | `--seed`         | `42`                                      | Random seed for reproducibility                       |
-
 
 ---
 
