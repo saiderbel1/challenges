@@ -116,18 +116,4 @@ python header_lines_matching/run.py --mode generate \
 
 ---
 
-### Project Structure
-
-```
-challenges/
-├── .gitignore
-├── README.md
-├── requirements.txt
-├── procurement_system/
-│   └── main.py
-└── header_lines_matching/
-    ├── run.py
-    ├── order_headers.csv
-    └── order_lines.csv
-```
 
